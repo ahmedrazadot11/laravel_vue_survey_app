@@ -97,12 +97,15 @@
 import { v4 as uuidv4 } from "uuid";
 import store from "../store";
 import { ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 import PageComponent from '../components/PageComponent.vue';
 import QuestionEditor from '../components/editor/QuestionEditor.vue';
 
+const router = useRouter();
+
 const route = useRoute();
+
 
 let model = ref({
     title: "",
@@ -129,6 +132,33 @@ function addQuestion(index){
     };
 
     model.value.questions.splice(index, 0, newQuestion);
+}
+
+function deleteQuestion(question) {
+    model.value.questions = model.questions.filter(
+        (q) => q !== question
+    );
+}
+
+function questionChange(question) {
+    model.value.questions = model.value.questions.map((q) => {
+        if (q.id === question.id) {
+            return JSON.parse(JSON.stringify(question));
+        }
+        return q;
+    });
+}
+
+
+// create or update survey
+
+function saveSurvey(){
+    store.dispatch("saveSurvey", model.value).then(({ data }) => {
+        router.push({
+            name: "SurveyView",
+            params: {id: data.data.id },
+        });
+    });
 }
 
 </script>
